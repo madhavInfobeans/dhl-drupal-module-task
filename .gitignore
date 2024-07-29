@@ -1,0 +1,33 @@
+# Environment variable file
+.env
+
+# Core vendor files
+/vendor/
+/composer.lock
+
+# Drupal-specific files and directories
+/sites/*/files
+/sites/*/private
+/sites/*/tmp
+/sites/*/settings.local.php
+/sites/*/services.local.yml
+
+# PHPUnit and other testing artifacts
+/tests/coverage/
+/phpunit.xml
+/phpunit.xml.dist
+
+# Temporary files
+*.log
+*.tmp
+*.swp
+*.swo
+*.DS_Store
+*.idea/
+*.vscode/
+
+# Composer
+/composer.lock
+
+
+/autoload.php
