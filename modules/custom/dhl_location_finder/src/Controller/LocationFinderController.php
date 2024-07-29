@@ -35,20 +35,30 @@ class LocationFinderController extends ControllerBase {
 
     if ($country && $city && $postal_code) {
       $locations = $this->dhlApiService->getLocations($country, $city, $postal_code);
-      \Drupal::logger('dhl_location_finder')->info('Locations Retrieved: <pre>@locations</pre>', [
-        '@locations' => print_r($locations, TRUE),
+      
+      // Log the raw API response
+      \Drupal::logger('dhl_location_finder')->info('API Response: <pre>@response</pre>', [
+        '@response' => print_r($locations, TRUE),
       ]);
 
       if ($locations) {
         $filtered_locations = $this->filterLocations($locations);
+        
+        // Log filtered locations
         \Drupal::logger('dhl_location_finder')->info('Filtered Locations: <pre>@filtered_locations</pre>', [
           '@filtered_locations' => print_r($filtered_locations, TRUE),
         ]);
-        $yaml = $this->convertToYaml($filtered_locations);
-
-        return [
-          '#markup' => '<pre>' . htmlspecialchars($yaml) . '</pre>',
-        ];
+        
+        if (!empty($filtered_locations)) {
+          $yaml = $this->convertToYaml($filtered_locations);
+          return [
+            '#markup' => '<pre>' . htmlspecialchars($yaml) . '</pre>',
+          ];
+        } else {
+          return [
+            '#markup' => $this->t('No locations match the filter criteria.'),
+          ];
+        }
       } else {
         return [
           '#markup' => $this->t('No locations found or an error occurred.'),
@@ -66,37 +76,40 @@ class LocationFinderController extends ControllerBase {
       '@locations' => print_r($locations, TRUE),
     ]);
 
-    return array_filter($locations, function ($location) {
-      $address = $location['place']['address']['streetAddress'] ?? '';
-      $address_number = preg_replace('/\D/', '', $address);
-      $address_number = $address_number !== '' ? (int) $address_number : 0;
+    if (isset($locations['locations'])) {
+      return array_filter($locations['locations'], function ($location) {
+        $address = $location['place']['address']['streetAddress'] ?? '';
+        $address_number = preg_replace('/\D/', '', $address);
+        $address_number = $address_number !== '' ? (int) $address_number : 0;
 
-      $opening_hours = $location['openingHours'] ?? [];
+        $opening_hours = $location['openingHours'] ?? [];
 
-      // Check if the location is closed on weekends
-      $closed_on_saturday = true;
-      $closed_on_sunday = true;
-      foreach ($opening_hours as $hours) {
-        if (isset($hours['dayOfWeek']) && str_replace('http://schema.org/', '', $hours['dayOfWeek']) === 'Saturday') {
-          $closed_on_saturday = false;
+        $closed_on_saturday = true;
+        $closed_on_sunday = true;
+        foreach ($opening_hours as $hours) {
+          if (isset($hours['dayOfWeek']) && str_replace('http://schema.org/', '', $hours['dayOfWeek']) === 'Saturday') {
+            $closed_on_saturday = false;
+          }
+          if (isset($hours['dayOfWeek']) && str_replace('http://schema.org/', '', $hours['dayOfWeek']) === 'Sunday') {
+            $closed_on_sunday = false;
+          }
         }
-        if (isset($hours['dayOfWeek']) && str_replace('http://schema.org/', '', $hours['dayOfWeek']) === 'Sunday') {
-          $closed_on_sunday = false;
-        }
-      }
 
-      $weekend_closed = $closed_on_saturday && $closed_on_sunday;
+        $weekend_closed = $closed_on_saturday && $closed_on_sunday;
 
-      // Log detailed information about each location
-      \Drupal::logger('dhl_location_finder')->info('Location: @location_name, Address: @address, Address Number: @address_number, Weekend Closed: @weekend_closed', [
-        '@location_name' => $location['name'] ?? 'Unknown',
-        '@address' => $address,
-        '@address_number' => $address_number,
-        '@weekend_closed' => $weekend_closed ? 'Yes' : 'No',
-      ]);
+        \Drupal::logger('dhl_location_finder')->info('Location: @location_name, Address: @address, Address Number: @address_number, Weekend Closed: @weekend_closed', [
+          '@location_name' => $location['name'] ?? 'Unknown',
+          '@address' => $address,
+          '@address_number' => $address_number,
+          '@weekend_closed' => $weekend_closed ? 'Yes' : 'No',
+        ]);
 
-      return !$weekend_closed && $address_number % 2 === 0;
-    });
+        return !$weekend_closed && $address_number % 2 === 0;
+      });
+    } else {
+      \Drupal::logger('dhl_location_finder')->error('API response does not contain "locations" key.');
+      return [];
+    }
   }
 
   private function convertToYaml($locations) {
@@ -112,13 +125,12 @@ class LocationFinderController extends ControllerBase {
     ];
 
     foreach ($locations as $location) {
-      $formatted_hours = $days_of_week; // Initialize with default hours
+      $formatted_hours = $days_of_week;
 
       foreach ($location['openingHours'] as $hours) {
         if (isset($hours['dayOfWeek'])) {
-          // Remove 'http://schema.org/' prefix and get day
           $day = str_replace('http://schema.org/', '', $hours['dayOfWeek']);
-          $day_key = strtolower($day); // Convert to lowercase
+          $day_key = strtolower($day);
 
           if (array_key_exists($day_key, $formatted_hours)) {
             $formatted_hours[$day_key] = $hours['opens'] . ' - ' . $hours['closes'];

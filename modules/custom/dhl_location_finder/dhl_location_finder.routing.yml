@@ -13,3 +13,12 @@ dhl_location_finder.results:
     _title: 'DHL Location Finder Results'
   requirements:
     _permission: 'access content'
+
+dhl_location_finder.config_form:
+  path: '/admin/config/dhl-location-finder'
+  defaults:
+    _form: '\Drupal\dhl_location_finder\Form\DhlApiConfigForm'
+    _title: 'DHL Location Finder Configuration'
+  requirements:
+    _permission: 'administer site configuration'
+

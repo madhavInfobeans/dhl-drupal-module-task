@@ -2,22 +2,32 @@
 
 namespace Drupal\dhl_location_finder\Service;
 
+use Drupal\Core\Config\ConfigFactoryInterface;
 use GuzzleHttp\ClientInterface;
 
+/**
+ * Class DhlApiService.
+ *
+ * @package Drupal\dhl_location_finder\Service
+ */
 class DhlApiService {
-
+  
   protected $httpClient;
+  protected $configFactory;
 
-  public function __construct(ClientInterface $httpClient) {
-    $this->httpClient = $httpClient;
+  public function __construct(ClientInterface $http_client, ConfigFactoryInterface $config_factory) {
+    $this->httpClient = $http_client;
+    $this->configFactory = $config_factory;
   }
 
   public function getLocations($country, $city, $postal_code) {
-    $url = 'https://api.dhl.com/location-finder/v1/find-by-address';
+    $config = $this->configFactory->get('dhl_location_finder.settings');
+    $api_key = $config->get('dhl_api_key');
+
     try {
-      $response = $this->httpClient->get($url, [
+      $response = $this->httpClient->get('https://api.dhl.com/location-finder/v1/find-by-address', [
         'headers' => [
-          'DHL-API-Key' => 'buxERDZGi26uIouY8kstPgri1AHdAdE1',
+          'DHL-API-Key' => $api_key,
         ],
         'query' => [
           'countryCode' => $country,
@@ -26,13 +36,9 @@ class DhlApiService {
         ],
       ]);
 
-      $data = json_decode($response->getBody(), TRUE);
-      \Drupal::logger('dhl_location_finder')->info('API Response: <pre>@data</pre>', ['@data' => print_r($data, TRUE)]);
-      return $data['locations'] ?? [];
+      return json_decode($response->getBody(), TRUE);
     } catch (\Exception $e) {
-      \Drupal::logger('dhl_location_finder')->error('API request failed: @message', [
-        '@message' => $e->getMessage(),
-      ]);
+      \Drupal::logger('dhl_location_finder')->error($e->getMessage());
       return NULL;
     }
   }

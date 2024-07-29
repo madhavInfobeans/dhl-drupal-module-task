@@ -1,4 +1,4 @@
 services:
   dhl_location_finder.dhl_api_service:
-    class: Drupal\dhl_location_finder\Service\DhlApiService
-    arguments: ['@http_client']
+    class: '\Drupal\dhl_location_finder\Service\DhlApiService'
+    arguments: ['@http_client', '@config.factory']
