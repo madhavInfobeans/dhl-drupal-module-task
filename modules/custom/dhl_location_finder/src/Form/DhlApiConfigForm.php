@@ -33,17 +33,25 @@ class DhlApiConfigForm extends ConfigFormBase {
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
     $config = $this->config('dhl_location_finder.settings');
-
+  
     $form['dhl_api_key'] = [
       '#type' => 'textfield',
       '#title' => $this->t('DHL API Key'),
       '#default_value' => $config->get('dhl_api_key'),
-      '#description' => $this->t('Enter your DHL API key.'),
+      '#description' => $this->t('Enter your DHL API key. This key is required for accessing DHL API services.'),
     ];
-
+  
+    $form['help'] = [
+      '#type' => 'item',
+      '#title' => $this->t('Configuration Path'),
+      '#description' => $this->t('To configure the DHL API settings, navigate to %path.', [
+        '%path' => '/admin/config/dhl-location-finder',
+      ]),
+    ];
+  
     return parent::buildForm($form, $form_state);
   }
-
+  
   /**
    * {@inheritdoc}
    */

@@ -35,7 +35,7 @@ class LocationFinderController extends ControllerBase {
 
     if ($country && $city && $postal_code) {
       $locations = $this->dhlApiService->getLocations($country, $city, $postal_code);
-      
+
       // Log the raw API response
       \Drupal::logger('dhl_location_finder')->info('API Response: <pre>@response</pre>', [
         '@response' => print_r($locations, TRUE),
@@ -71,40 +71,28 @@ class LocationFinderController extends ControllerBase {
     ];
   }
 
-  private function filterLocations($locations) {
+  /**
+   * Filter locations based on specific criteria.
+   *
+   * @param array $locations
+   *   Array of locations to filter.
+   *
+   * @return array
+   *   Filtered array of locations.
+   */
+  protected function filterLocations(array $locations) {
     \Drupal::logger('dhl_location_finder')->info('Unfiltered Locations: <pre>@locations</pre>', [
       '@locations' => print_r($locations, TRUE),
     ]);
 
     if (isset($locations['locations'])) {
       return array_filter($locations['locations'], function ($location) {
-        $address = $location['place']['address']['streetAddress'] ?? '';
-        $address_number = preg_replace('/\D/', '', $address);
-        $address_number = $address_number !== '' ? (int) $address_number : 0;
+        $location_ids = $location['location']['ids'] ?? [];
+        $worksOnWeekends = $this->worksOnWeekends($location);
+        $containsOddAfterHyphen = $this->containsOddAfterHyphen($location_ids);
 
-        $opening_hours = $location['openingHours'] ?? [];
-
-        $closed_on_saturday = true;
-        $closed_on_sunday = true;
-        foreach ($opening_hours as $hours) {
-          if (isset($hours['dayOfWeek']) && str_replace('http://schema.org/', '', $hours['dayOfWeek']) === 'Saturday') {
-            $closed_on_saturday = false;
-          }
-          if (isset($hours['dayOfWeek']) && str_replace('http://schema.org/', '', $hours['dayOfWeek']) === 'Sunday') {
-            $closed_on_sunday = false;
-          }
-        }
-
-        $weekend_closed = $closed_on_saturday && $closed_on_sunday;
-
-        \Drupal::logger('dhl_location_finder')->info('Location: @location_name, Address: @address, Address Number: @address_number, Weekend Closed: @weekend_closed', [
-          '@location_name' => $location['name'] ?? 'Unknown',
-          '@address' => $address,
-          '@address_number' => $address_number,
-          '@weekend_closed' => $weekend_closed ? 'Yes' : 'No',
-        ]);
-
-        return !$weekend_closed && $address_number % 2 === 0;
+        // Include if it works on weekends and does not contain odd numbers after hyphen
+        return $worksOnWeekends && !$containsOddAfterHyphen;
       });
     } else {
       \Drupal::logger('dhl_location_finder')->error('API response does not contain "locations" key.');
@@ -112,7 +100,76 @@ class LocationFinderController extends ControllerBase {
     }
   }
 
-  private function convertToYaml($locations) {
+  /**
+   * Check if a location works on weekends.
+   *
+   * @param array $location
+   *   The location data.
+   *
+   * @return bool
+   *   TRUE if the location works on weekends, FALSE otherwise.
+   */
+  protected function worksOnWeekends(array $location) {
+    $opening_hours = $location['openingHours'] ?? [];
+    $open_on_saturday = false;
+    $open_on_sunday = false;
+    
+    foreach ($opening_hours as $hours) {
+      if (isset($hours['dayOfWeek'])) {
+        $dayOfWeek = str_replace('http://schema.org/', '', $hours['dayOfWeek']);
+        if ($dayOfWeek === 'Saturday') {
+          $open_on_saturday = true;
+        } elseif ($dayOfWeek === 'Sunday') {
+          $open_on_sunday = true;
+        }
+        // Early exit if both flags are set
+        if ($open_on_saturday && $open_on_sunday) {
+          break;
+        }
+      }
+    }
+    
+    // Works on weekends if it is open on either Saturday or Sunday
+    return $open_on_saturday || $open_on_sunday;
+  }
+
+  /**
+   * Check if a location ID contains odd numbers after a hyphen.
+   *
+   * @param array $location_ids
+   *   Array of location IDs.
+   *
+   * @return bool
+   *   TRUE if any location ID contains odd numbers after a hyphen, FALSE otherwise.
+   */
+  protected function containsOddAfterHyphen(array $location_ids) {
+    foreach ($location_ids as $id) {
+      $locationId = $id['locationId'] ?? '';
+      if (strpos($locationId, '-') !== false) {
+        list(, $afterHyphen) = explode('-', $locationId);
+        if (preg_match('/\d/', $afterHyphen, $matches)) {
+          $numbers = str_split($afterHyphen);
+          foreach ($numbers as $char) {
+            if (is_numeric($char) && (int)$char % 2 != 0) {
+              return true;
+            }
+          }
+        }
+      }
+    }
+    return false;
+  }
+
+  /**
+   * Convert locations data to YAML format.
+   *
+   * @param array $locations
+   *   Array of locations to convert.
+   *
+   * @return string
+   *   YAML formatted string.
+   */
+  private function convertToYaml(array $locations) {
     $yaml_output = [];
     $days_of_week = [
       'monday' => '00:00:00 - 23:59:00',

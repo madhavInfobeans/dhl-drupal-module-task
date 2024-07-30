@@ -1,42 +1,47 @@
-Modules extend your site functionality beyond Drupal core.
+# DHL Location Finder Module
 
-WHAT TO PLACE IN THIS DIRECTORY?
---------------------------------
+## Overview
 
-Placing downloaded and custom modules in this directory separates downloaded and
-custom modules from Drupal core's modules. This allows Drupal core to be updated
-without overwriting these files.
+The DHL Location Finder module for Drupal allows you to configure and use the DHL Location Finder API to find locations based on user input. 
 
-DOWNLOAD ADDITIONAL MODULES
----------------------------
+## Installation
 
-Contributed modules from the Drupal community may be downloaded at
-https://www.drupal.org/project/project_module.
+1. **Enable the Module**:
+   - Navigate to `Extend` in the Drupal admin toolbar.
+   - Find the **DHL Location Finder** module in the list and check the box.
+   - Click **Install** to enable the module.
 
-ORGANIZING MODULES IN THIS DIRECTORY
-------------------------------------
+## Configuration
 
-You may create subdirectories in this directory, to organize your added modules,
-without breaking the site. Some common subdirectories include "contrib" for
-contributed modules, and "custom" for custom modules. Note that if you move a
-module to a subdirectory after it has been enabled, you may need to clear the
-Drupal cache so it can be found.
+To configure the DHL API key for the module, follow these steps:
 
-There are number of directories that are ignored when looking for modules. These
-are 'src', 'lib', 'vendor', 'assets', 'css', 'files', 'images', 'js', 'misc',
-'templates', 'includes', 'fixtures' and 'Drupal'.
+1. **Access DHL API Configuration**:
+   - In the Configuration page, locate the **DHL Location Finder** section.
+   - Click on **DHL API Configuration** or navigate directly to the configuration form using the URL:
+     ```
+     /admin/config/dhl-location-finder
+     ```
 
-MULTISITE CONFIGURATION
------------------------
+2. **Set the API Key**:
+   - On the DHL API Configuration form, enter your DHL API key in the provided text field.
+   - Click **Save Configuration** to store your API key.
 
-In multisite configurations, modules found in this directory are available to
-all sites. You may also put modules in the sites/all/modules directory, and the
-versions in sites/all/modules will take precedence over versions of the same
-module that are here. Alternatively, the sites/your_site_name/modules directory
-pattern may be used to restrict modules to a specific site instance.
+## Using the Location Finder Form
 
-MORE INFORMATION
-----------------
+To use the location finder form where users can enter their search criteria, follow these steps:
 
-Refer to the “Developing for Drupal” section of the README.md in the Drupal
-root directory for further information on extending Drupal with custom modules.
+1. **Navigate to the Location Finder Form**:
+   - The form can be accessed through the URL:
+     ```
+     /location-finder
+     ```
+
+2. **Submit a Query**:
+   - On the location finder form, fill in the following fields:
+     - **Country**: Enter a two-letter country code (e.g., `US` for the United States).
+     - **City**: Enter the name of the city.
+     - **Postal Code**: Enter the postal code.
+
+3. **View Results**:
+   - After submitting the form, the results will be displayed on the same page, showing the locations that match the query.
+
