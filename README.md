@@ -44,3 +44,7 @@ To use the location finder form where users can enter their search criteria, fol
 
 3. **View Results**:
    - After submitting the form, the results will be displayed on the same page, showing the locations that match the query.
+
+4 **Run test cases**
+   - command: ./vendor/bin/phpunit -c phpunit.xml.dist --testsuite=unit
+   
