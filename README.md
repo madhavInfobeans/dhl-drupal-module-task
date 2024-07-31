@@ -1,50 +1,75 @@
-# DHL Location Finder Module
+<img alt="Drupal Logo" src="https://www.drupal.org/files/Wordmark_blue_RGB.png" height="60px">
 
-## Overview
+Drupal is an open source content management platform supporting a variety of
+websites ranging from personal weblogs to large community-driven websites. For
+more information, visit the Drupal website, [Drupal.org][Drupal.org], and join
+the [Drupal community][Drupal community].
 
-The DHL Location Finder module for Drupal allows you to configure and use the DHL Location Finder API to find locations based on user input. 
+## Contributing
 
-## Installation
+Drupal is developed on [Drupal.org][Drupal.org], the home of the international
+Drupal community since 2001!
 
-1. **Enable the Module**:
-   - Navigate to `Extend` in the Drupal admin toolbar.
-   - Find the **DHL Location Finder** module in the list and check the box.
-   - Click **Install** to enable the module.
+[Drupal.org][Drupal.org] hosts Drupal's [GitLab repository][GitLab repository],
+its [issue queue][issue queue], and its [documentation][documentation]. Before
+you start working on code, be sure to search the [issue queue][issue queue] and
+create an issue if your aren't able to find an existing issue.
 
-## Configuration
+Every issue on Drupal.org automatically creates a new community-accessible fork
+that you can contribute to. Learn more about the code contribution process on
+the [Issue forks & merge requests page][issue forks].
 
-To configure the DHL API key for the module, follow these steps:
+## Usage
 
-1. **Access DHL API Configuration**:
-   - In the Configuration page, locate the **DHL Location Finder** section.
-   - Click on **DHL API Configuration** or navigate directly to the configuration form using the URL:
-     ```
-     /admin/config/dhl-location-finder
-     ```
+For a brief introduction, see [USAGE.txt](/core/USAGE.txt). You can also find
+guides, API references, and more by visiting Drupal's [documentation
+page][documentation].
 
-2. **Set the API Key**:
-   - On the DHL API Configuration form, enter your DHL API key in the provided text field.
-   - Click **Save Configuration** to store your API key.
+You can quickly extend Drupal's core feature set by installing any of its
+[thousands of free and open source modules][modules]. With Drupal and its
+module ecosystem, you can often build most or all of what your project needs
+before writing a single line of code.
 
-## Using the Location Finder Form
+## Changelog
 
-To use the location finder form where users can enter their search criteria, follow these steps:
+Drupal keeps detailed [change records][changelog]. You can search Drupal's
+changes for a record of every notable breaking change and new feature since
+2011.
 
-1. **Navigate to the Location Finder Form**:
-   - The form can be accessed through the URL:
-     ```
-     /location-finder
-     ```
+## Security
 
-2. **Submit a Query**:
-   - On the location finder form, fill in the following fields:
-     - **Country**: Enter a two-letter country code (e.g., `US` for the United States).
-     - **City**: Enter the name of the city.
-     - **Postal Code**: Enter the postal code.
+For a list of security announcements, see the [Security advisories
+page][Security advisories] (available as [an RSS feed][security RSS]). This
+page also describes how to subscribe to these announcements via email.
 
-3. **View Results**:
-   - After submitting the form, the results will be displayed on the same page, showing the locations that match the query.
+For information about the Drupal security process, or to find out how to report
+a potential security issue to the Drupal security team, see the [Security team
+page][security team].
 
-4. **Run test cases**
-   - command: ./vendor/bin/phpunit -c phpunit.xml.dist --testsuite=unit
-   
+## Need a helping hand?
+
+Visit the [Support page][support] or browse [over a thousand Drupal
+providers][service providers] offering design, strategy, development, and
+hosting services.
+
+## Legal matters
+
+Know your rights when using Drupal by reading Drupal core's
+[license](/core/LICENSE.txt).
+
+Learn about the [Drupal trademark and logo policy here][trademark].
+
+[Drupal.org]: https://www.drupal.org
+[Drupal community]: https://www.drupal.org/community
+[GitLab repository]: https://git.drupalcode.org/project/drupal
+[issue queue]: https://www.drupal.org/project/issues/drupal
+[issue forks]: https://www.drupal.org/drupalorg/docs/gitlab-integration/issue-forks-merge-requests
+[documentation]: https://www.drupal.org/documentation
+[changelog]: https://www.drupal.org/list-changes/drupal
+[modules]: https://www.drupal.org/project/project_module
+[security advisories]: https://www.drupal.org/security
+[security RSS]: https://www.drupal.org/security/rss.xml
+[security team]: https://www.drupal.org/drupal-security-team
+[service providers]: https://www.drupal.org/drupal-services
+[support]: https://www.drupal.org/support
+[trademark]: https://www.drupal.com/trademark

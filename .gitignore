@@ -32,3 +32,6 @@
 
 /autoload.php
 .phpunit.result.cache
+/build/coverage/
+/build/logs/clover.xml
+/phpunit.log
